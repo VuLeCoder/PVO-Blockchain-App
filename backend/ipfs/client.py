@@ -1,40 +1,72 @@
 import os
-import hashlib
+import requests
 import cv2
-import numpy as np
+import io
+from typing import Tuple
 
-IPFS_STORAGE = "data/ipfs/"
-os.makedirs(IPFS_STORAGE, exist_ok=True)
+# Cấu hình từ môi trường hoặc tập tin chung
+PINATA_URL = "https://api.pinata.cloud/pinning/pinFileToIPFS"
+API_KEY = os.getenv("PINATA_API_KEY")
+SECRET = os.getenv("PINATA_SECRET")
 
-def upload_image(image):
-    _, buffer = cv2.imencode('.png', image)
-    content = buffer.tobytes()
+class IPFSClient:
+    def __init__(self):
+        """Khởi tạo client và kiểm tra thông tin xác thực."""
+        if not API_KEY or not SECRET:
+            raise ValueError("PINATA_API_KEY and PINATA_SECRET must be set in .env")
+        
+        self.headers = {
+            "pinata_api_key": API_KEY,
+            "pinata_secret_api_key": SECRET
+        }
 
-    cid = hashlib.sha256(content).hexdigest()
-    path = os.path.join(IPFS_STORAGE, cid + ".png")
+    def upload_image_from_cv2(self, image, filename: str = "image.png") -> str:
+        """
+        Mã hóa ảnh từ OpenCV và upload lên IPFS.
+        :param image: Đối tượng ảnh OpenCV (numpy array).
+        :param filename: Tên hiển thị trên Pinata dashboard.
+        """
+        # Encode ảnh sang định dạng PNG để giữ nguyên chất lượng cho logic PVO
+        success, buffer = cv2.imencode('.png', image)
+        if not success:
+            raise Exception("Could not encode image to PNG format")
 
-    with open(path, "wb") as f:
-        f.write(content)
+        # Sử dụng BytesIO để tránh việc ghi file tạm ra ổ cứng
+        file_stream = io.BytesIO(buffer.tobytes())
+        files = {
+            "file": (filename, file_stream)
+        }
 
-    return cid
+        try:
+            response = requests.post(PINATA_URL, files=files, headers=self.headers, timeout=30)
+            response.raise_for_status() # Tự động raise lỗi nếu status code >= 400
+            
+            ipfs_hash = response.json()["IpfsHash"]
+            print(f"✅ Uploaded {filename} to IPFS: {ipfs_hash}")
+            return ipfs_hash
+            
+        except requests.exceptions.RequestException as e:
+            raise Exception(f"IPFS Upload Error: {str(e)}")
 
+    def upload_pvo_pair(self, original_img, watermarked_img) -> Tuple[str, str]:
+        """
+        Upload cặp ảnh (gốc và đã nhúng watermark) lên IPFS.
+        Hữu ích cho hàm storeRecord trong Smart Contract cần 2 CID[cite: 2].
+        """
+        cid_orig = self.upload_image_from_cv2(original_img, "original_pvo.png")
+        cid_watermarked = self.upload_image_from_cv2(watermarked_img, "watermarked_pvo.png")
+        
+        return cid_orig, cid_watermarked
 
-def download_image(cid):
-    path = os.path.join(IPFS_STORAGE, cid + ".png")
+# Singleton instance để sử dụng ở các module khác
+_ipfs_client = None
 
-    if not os.path.exists(path):
-        raise FileNotFoundError("CID not found")
-
-    with open(path, "rb") as f:
-        data = f.read()
-
-    nparr = np.frombuffer(data, np.uint8)
-    return cv2.imdecode(nparr, cv2.IMREAD_GRAYSCALE)
-
+def get_ipfs_client():
+    global _ipfs_client
+    if _ipfs_client is None:
+        _ipfs_client = IPFSClient()
+    return _ipfs_client
 
 def upload_images(img1, img2):
-    return upload_image(img1), upload_image(img2)
-
-
-def download_images(cid1, cid2):
-    return download_image(cid1), download_image(cid2)
+    client = get_ipfs_client()
+    return client.upload_pvo_pair(img1, img2)
