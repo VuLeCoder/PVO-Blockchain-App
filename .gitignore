@@ -13,7 +13,7 @@ ENV/
 # Project specific - Data and Logs
 data/
 logs/
-tests/img/original.bmp
+tests/
 
 # Nếu bạn muốn giữ cấu trúc thư mục data nhưng không giữ file bên trong:
 # data/stego/*
