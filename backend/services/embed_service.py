@@ -1,7 +1,7 @@
-from watermark.pvo_embed import pvo_embed
-from utils.crypto import hash_images
-from ipfs.client import upload_images
-from blockchain.client import store_record
+from backend.watermark.pvo_embed import pvo_embed
+from backend.utils.crypto import hash_images
+from backend.ipfs.client import upload_images
+from backend.blockchain.client import store_record
 
 
 def embed_and_register(image, data):

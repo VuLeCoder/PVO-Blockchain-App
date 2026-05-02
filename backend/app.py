@@ -1,6 +1,6 @@
 import cv2
-from services.embed_service import embed_and_register
-from services.verify_service import verify_images
+from backend.services.embed_service import embed_and_register
+from backend.services.verify_service import verify_images
 
 
 def main():

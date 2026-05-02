@@ -1,6 +1,6 @@
-from watermark.pvo_extract import pvo_extract
-from utils.crypto import hash_images
-from blockchain.client import verify_record
+from backend.watermark.pvo_extract import pvo_extract
+from backend.utils.crypto import hash_images
+from backend.blockchain.client import verify_record
 
 
 def verify_images(stego1, stego2, cid1, cid2):
