@@ -1,28 +1,25 @@
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[cod]
-*$py.class
+# Dependencies
+node_modules/
+dist/
 
-# Environments
+# Cấu hình môi trường (Quan trọng nhất)
 .env
-.venv
-env/
-venv/
-ENV/
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
-# Project specific - Data and Logs
-data/
-logs/
-tests/
+# IDEs và Editors
+.vscode/
+.idea/
+*.swp
+*.swo
 
-# Nếu bạn muốn giữ cấu trúc thư mục data nhưng không giữ file bên trong:
-# data/stego/*
-# !data/stego/.gitkeep
-
-# Operating System files
+# Hệ điều hành
 .DS_Store
 Thumbs.db
 
-# IDEs and Editors
-.vscode/
-.idea/
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
