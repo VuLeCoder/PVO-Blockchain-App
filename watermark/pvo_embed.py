@@ -5,10 +5,11 @@ from .constants import HEADER_SIZE
 from .bit_utils import text_to_bits, int_to_bits
 from .pvo_utils import sort_pair, is_overflow_underflow, embed_process
 
-def pvo_embed(image_path, watermark_text, output_path1, output_path2):
-    img = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
-    stego1 = img.copy().astype(np.int16)
-    stego2 = img.copy().astype(np.int16)
+def pvo_embed(image, watermark_text):
+    image.setflags(write=False)
+
+    stego1 = image.copy().astype(np.int16)
+    stego2 = image.copy().astype(np.int16)
 
     data_bits = text_to_bits(watermark_text)
 
@@ -51,7 +52,6 @@ def pvo_embed(image_path, watermark_text, output_path1, output_path2):
         if bit_idx >= len(bits):
             break
 
-    cv2.imwrite(output_path1, np.clip(stego1, 0, 255).astype(np.uint8))
-    cv2.imwrite(output_path2, np.clip(stego2, 0, 255).astype(np.uint8))
-
     print(f"[EMBED] Embedded {bit_idx} bits")
+
+    return stego1, stego2
