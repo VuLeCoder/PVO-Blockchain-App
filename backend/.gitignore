@@ -1,0 +1,39 @@
+# Python: Byte-compiled / optimized files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Môi trường ảo (Virtual Environments)
+.venv/
+venv/
+env/
+ENV/
+build/
+develop-eggs/
+downloads/
+eggs/
+.eggs/
+
+# Dữ liệu dự án - Ảnh PVO
+data/
+# Không đẩy ảnh input/output lên Git để tránh nặng repo
+# data/input/*
+# data/output/*
+# Giữ lại thư mục nhưng trống file (nếu có .gitkeep)
+# !data/input/.gitkeep
+# !data/output/.gitkeep
+
+#tests
+tests/
+
+# Blockchain Artifacts
+# Ignore các file ABI và Address tự động sinh ra từ deploy.js
+blockchain/*.json
+
+# Logs và Testing
+logs/
+*.log
+.pytest_cache/
+.coverage
+htmlcov/
