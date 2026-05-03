@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>PVO Blockchain API Test</title>
+    <style>
+        body { font-family: Arial; margin: 20px; }
+        .box { border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; }
+        input, button { margin: 5px 0; padding: 6px; }
+        pre { background: #111; color: #0f0; padding: 10px; overflow: auto; }
+    </style>
+</head>
+<body>
+
+<h1>🧪 PVO Blockchain API Test</h1>
+
+<div class="box">
+    <h2>1. EMBED</h2>
+    <input type="file" id="embedImage">
+    <input type="text" id="message" placeholder="message">
+    <button onclick="embed()">Embed</button>
+</div>
+
+<div class="box">
+    <h2>2. VERIFY RECORD</h2>
+    <input type="number" id="recordId1" placeholder="record id">
+    <button onclick="verifyRecord()">Verify Record</button>
+</div>
+
+<div class="box">
+    <h2>3. VERIFY IMAGE</h2>
+    <input type="number" id="recordId2" placeholder="record id">
+    <input type="file" id="img1">
+    <input type="file" id="img2">
+    <button onclick="verifyImage()">Verify Image</button>
+</div>
+
+<div class="box">
+    <h2>4. GET RECORD</h2>
+    <input type="number" id="recordId3" placeholder="record id">
+    <button onclick="getRecord()">Get Record</button>
+</div>
+
+<h2>📦 Response</h2>
+<pre id="output"></pre>
+
+<script>
+const API = "http://127.0.0.1:8000";
+
+function show(data) {
+    document.getElementById("output").textContent =
+        JSON.stringify(data, null, 2);
+}
+
+// =========================
+// EMBED
+// =========================
+async function embed() {
+    const file = document.getElementById("embedImage").files[0];
+    const message = document.getElementById("message").value;
+
+    let form = new FormData();
+    form.append("image", file);
+    form.append("message", message);
+
+    let res = await fetch(API + "/embed", {
+        method: "POST",
+        body: form
+    });
+
+    let data = await res.json();
+    show(data);
+}
+
+// =========================
+// VERIFY RECORD
+// =========================
+async function verifyRecord() {
+    const record_id = document.getElementById("recordId1").value;
+
+    let form = new FormData();
+    form.append("record_id", record_id);
+
+    let res = await fetch(API + "/verify-record", {
+        method: "POST",
+        body: form
+    });
+
+    let data = await res.json();
+    show(data);
+}
+
+// =========================
+// VERIFY IMAGE
+// =========================
+async function verifyImage() {
+    const record_id = document.getElementById("recordId2").value;
+    const file1 = document.getElementById("img1").files[0];
+    const file2 = document.getElementById("img2").files[0];
+
+    let form = new FormData();
+    form.append("record_id", record_id);
+    form.append("image1", file1);
+    form.append("image2", file2);
+
+    let res = await fetch(API + "/verify-image", {
+        method: "POST",
+        body: form
+    });
+
+    let data = await res.json();
+    show(data);
+}
+
+// =========================
+// GET RECORD
+// =========================
+async function getRecord() {
+    const id = document.getElementById("recordId3").value;
+
+    let res = await fetch(API + "/record/" + id);
+    let data = await res.json();
+
+    show(data);
+}
+</script>
+
+</body>
+</html>
